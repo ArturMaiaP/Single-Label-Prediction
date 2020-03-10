@@ -39,8 +39,8 @@ dataset = pd.read_csv('LabeledData.csv', encoding='latin-1')
 #The dataframe has several columns, we need to select the length column
 df_lenght = (dataset.iloc[:634, [0,2]])
 
-num_classes = 4
-INP = 300 #Image dimension
+num_classes = 3
+INP = 224 #Image dimension default
 BATCHSIZE = 128
 
 #Copy images to a virtual machine, improving google colab performance 
@@ -61,7 +61,7 @@ train_generator=datagen.flow_from_dataframe(
         batch_size =BATCHSIZE,
         class_mode="categorical",
         color_mode="rgb",
-        classes=["short", "long", "other", "midi"],
+        classes=["short", "long", "midi"],
         target_size=(INP,INP),
         subset='training')
 
@@ -74,7 +74,7 @@ test_generator=datagen.flow_from_dataframe(
         batch_size =BATCHSIZE,
         class_mode="categorical",
         color_mode="rgb",
-        classes=["short", "long", "other", "midi"],
+        classes=["short", "long", "midi"],
         target_size=(INP,INP),
         subset='validation')
 
@@ -83,6 +83,8 @@ test_generator=datagen.flow_from_dataframe(
 
 #Load Vgg without input layer
 model_vgg19_conv = VGG19(weights='imagenet', include_top=False, classes = num_classes)
+model_vgg19_conv.trainable = False
+
 print(model_vgg19_conv.summary())
 
 #Create your own input format    
@@ -119,6 +121,8 @@ history = pretrained_model.fit_generator(train_generator,
 #%% VGG16
 
 model_vgg16_conv = VGG16(weights='imagenet', include_top=False, classes = 4)
+
+model_vgg16_conv.trainable = False
 
 #Create your own input format
 keras_input = Input(shape=(INP, INP, 3), name = 'image_input')
